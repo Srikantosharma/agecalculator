@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #333;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .calculator h2 {
+            margin-bottom: 1rem;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        input[type="date"], input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="date"]:focus, input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            border-color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .error {
+            color: #ff4d4d;
+            margin-top: 1rem;
+        }
+
+        /* Loading Popup */
+        .loading-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .loading-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Calculator</h1>
+
+        <!-- Age Calculator -->
+        <div class="calculator">
+            <h2>Age Calculator</h2>
+            <div class="input-group">
+                <label for="birthdate">Birthdate:</label>
+                <input type="date" id="birthdate" oninput="calculateAge()">
+            </div>
+            <div id="ageResult" class="result"></div>
+            <div id="ageError" class="error"></div>
+        </div>
+
+        <!-- BMI Calculator -->
+        <div class="calculator">
+            <h2>BMI Calculator</h2>
+            <div class="input-group">
+                <label for="weight">Weight (kg):</label>
+                <input type="number" id="weight" placeholder="Enter weight" oninput="calculateBMI()">
+            </div>
+            <div class="input-group">
+                <label for="height">Height (cm):</label>
+                <input type="number" id="height" placeholder="Enter height" oninput="calculateBMI()">
+            </div>
+            <div id="bmiResult" class="result"></div>
+            <div id="bmiError" class="error"></div>
+        </div>
+
+        <!-- Loan Calculator -->
+        <div class="calculator">
+            <h2>Loan Calculator</h2>
+            <div class="input-group">
+                <label for="loanAmount">Loan Amount ($):</label>
+                <input type="number" id="loanAmount" placeholder="Enter loan amount" oninput="calculateLoan()">
+            </div>
+            <div class="input-group">
+                <label for="interestRate">Interest Rate (%):</label>
+                <input type="number" id="interestRate" placeholder="Enter interest rate" oninput="calculateLoan()">
+            </div>
+            <div class="input-group">
+                <label for="loanTerm">Loan Term (years):</label>
+                <input type="number" id="loanTerm" placeholder="Enter loan term" oninput="calculateLoan()">
+            </div>
+            <div id="loanResult" class="result"></div>
+            <div id="loanError" class="error"></div>
+        </div>
+
+        <!-- Temperature Converter -->
+        <div class="calculator">
+            <h2>Temperature Converter</h2>
+            <div class="input-group">
+                <label for="temperature">Temperature:</label>
+                <input type="number" id="temperature" placeholder="Enter temperature" oninput="convertTemperature()">
+            </div>
+            <div class="input-group">
+                <label for="unit">Convert to:</label>
+                <select id="unit" onchange="convertTemperature()">
+                    <option value="celsius">Celsius to Fahrenheit</option>
+                    <option value="fahrenheit">Fahrenheit to Celsius</option>
+                </select>
+            </div>
+            <div id="tempResult" class="result"></div>
+            <div id="tempError" class="error"></div>
+        </div>
+    </div>
+
+    <!-- Loading Popup -->
+    <div class="loading-popup" id="loadingPopup">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Show loading popup
+        function showLoading() {
+            const loadingPopup = document.getElementById('loadingPopup');
+            loadingPopup.classList.add('active');
+        }
+
+        // Hide loading popup
+        function hideLoading() {
+            const loadingPopup = document.getElementById('loadingPopup');
+            loadingPopup.classList.remove('active');
+        }
+
+        // Simulate a delay for calculations
+        function simulateCalculation(callback) {
+            showLoading();
+            setTimeout(() => {
+                callback();
+                hideLoading();
+            }, 1000); // 1-second delay for simulation
+        }
+
+        // Age Calculator
+        function calculateAge() {
+            simulateCalculation(() => {
+                const birthdate = document.getElementById('birthdate').value;
+                const resultDiv = document.getElementById('ageResult');
+                const errorDiv = document.getElementById('ageError');
+
+                if (!birthdate) {
+                    errorDiv.textContent = "Please enter your birthdate.";
+                    resultDiv.textContent = '';
+                    return;
+                }
+
+                const today = new Date();
+                const birthDate = new Date(birthdate);
+
+                if (birthDate > today) {
+                    errorDiv.textContent = "Birthdate cannot be in the future.";
+                    resultDiv.textContent = '';
+                    return;
+                }
+
+                errorDiv.textContent = '';
+
+                let years = today.getFullYear() - birthDate.getFullYear();
+                let months = today.getMonth() - birthDate.getMonth();
+                let days = today.getDate() - birthDate.getDate();
+
+                if (months < 0 || (months === 0 && days < 0)) {
+                    years--;
+                    months += 12;
+                }
+
+                if (days < 0) {
+                    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 0);
+                    days += lastMonth.getDate();
+                    months--;
+                }
+
+                resultDiv.innerHTML = `
+                    <p>Your age is:</p>
+                    <p><strong>${years}</strong> years, <strong>${months}</strong> months, and <strong>${days}</strong> days.</p>
+                `;
+            });
+        }
+
+        // BMI Calculator
+        function calculateBMI() {
+            simulateCalculation(() => {
+                const weight = parseFloat(document.getElementById('weight').value);
+                const height = parseFloat(document.getElementById('height').value);
+                const resultDiv = document.getElementById('bmiResult');
+                const errorDiv = document.getElementById('bmiError');
+
+                if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                    errorDiv.textContent = "Please enter valid weight and height.";
+                    resultDiv.textContent = '';
+                    return;
+                }
+
+                errorDiv.textContent = '';
+
+                const heightInMeters = height / 100;
+                const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(2);
+                resultDiv.innerHTML = `
+                    <p>Your BMI is:</p>
+                    <p><strong>${bmi}</strong></p>
+                `;
+            });
+        }
+
+        // Loan Calculator
+        function calculateLoan() {
+            simulateCalculation(() => {
+                const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+                const interestRate = parseFloat(document.getElementById('interestRate').value);
+                const loanTerm = parseFloat(document.getElementById('loanTerm').value);
+                const resultDiv = document.getElementById('loanResult');
+                const errorDiv = document.getElementById('loanError');
+
+                if (isNaN(loanAmount) || isNaN(interestRate) || isNaN(loanTerm) || loanAmount <= 0 || interestRate <= 0 || loanTerm <= 0) {
+                    errorDiv.textContent = "Please enter valid loan details.";
+                    resultDiv.textContent = '';
+                    return;
+                }
+
+                errorDiv.textContent = '';
+
+                const monthlyInterestRate = (interestRate / 100) / 12;
+                const numberOfPayments = loanTerm * 12;
+                const emi = (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+                resultDiv.innerHTML = `
+                    <p>Your EMI is:</p>
+                    <p><strong>$${emi.toFixed(2)}</strong> per month</p>
+                `;
+            });
+        }
+
+        // Temperature Converter
+        function convertTemperature() {
+            simulateCalculation(() => {
+                const temperature = parseFloat(document.getElementById('temperature').value);
+                const unit = document.getElementById('unit').value;
+                const resultDiv = document.getElementById('tempResult');
+                const errorDiv = document.getElementById('tempError');
+
+                if (isNaN(temperature)) {
+                    errorDiv.textContent = "Please enter a valid temperature.";
+                    resultDiv.textContent = '';
+                    return;
+                }
+
+                errorDiv.textContent = '';
+
+                let convertedTemp;
+                if (unit === "celsius") {
+                    convertedTemp = (temperature * 9 / 5) + 32;
+                    resultDiv.innerHTML = `
+                        <p>Converted Temperature:</p>
+                        <p><strong>${convertedTemp.toFixed(2)}°F</strong></p>
+                    `;
+                } else {
+                    convertedTemp = (temperature - 32) * 5 / 9;
+                    resultDiv.innerHTML = `
+                        <p>Converted Temperature:</p>
+                        <p><strong>${convertedTemp.toFixed(2)}°C</strong></p>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
